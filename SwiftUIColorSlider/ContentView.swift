@@ -11,6 +11,9 @@ struct ContentView: View {
     @State private var redSliderValue = 50.0
     @State private var greenSliderValue = 30.0
     @State private var blueSliderValue = 20.0
+    
+    @State var alertPresented = false
+    @FocusState var keyboardActive: Bool
 
     var body: some View {
         ZStack {
@@ -31,14 +34,35 @@ struct ContentView: View {
                 sliderStack(sliderValue: $blueSliderValue, color: .blue)
             }
         }
+        .focused($keyboardActive)
+        .toolbar {
+            ToolbarItem(placement: .keyboard) {
+                Button("Done") {
+                    if redSliderValue > 100 {
+                        redSliderValue = 100
+                        alertPresented.toggle()
+                        return
+                    }
+                    if greenSliderValue > 100 {
+                        greenSliderValue = 100
+                        alertPresented.toggle()
+                        return
+                    }
+                    if blueSliderValue > 100 {
+                        blueSliderValue = 100
+                        alertPresented.toggle()
+                        return
+                    }
+                keyboardActive = false
+                }.alert("Значение должно быть от 0 до 100", isPresented: $alertPresented, actions: {})
+            }
+        }
     }
 }
 
 struct sliderStack: View {
     @Binding var sliderValue: Double
-    @State var alertPresented = false
     let color: Color
-    @FocusState var keyboardActive: Bool
     
     var body: some View {
         HStack {
@@ -52,19 +76,6 @@ struct sliderStack: View {
                 .multilineTextAlignment(.center)
                 .background(Color.white).cornerRadius(40)
                 .keyboardType(.asciiCapableNumberPad)
-                .focused($keyboardActive)
-                .toolbar {
-                    ToolbarItem(placement: .keyboard) {
-                        Button("Done") {
-                            if sliderValue > 100 {
-                                alertPresented.toggle()
-                                sliderValue = 100
-                                return
-                            }
-                            keyboardActive = false
-                        }.alert("Значение должно быть от 0 до 100", isPresented: $alertPresented, actions: {})
-                    }
-                }
         }.padding(.horizontal, 17.0)
     }
 }
